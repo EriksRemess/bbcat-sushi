@@ -1,0 +1,95 @@
+#!/bin/sh
+set -eu
+
+flatpak_id=org.gnome.NautilusPreviewer
+script_dir=$(CDPATH='' cd -- "$(dirname -- "$0")" && pwd)
+source_dir=$(dirname -- "$script_dir")
+host_data_home=${HOST_DATA_HOME:-${XDG_DATA_HOME:-"$HOME/.local/share"}}
+flatpak_data_home=${FLATPAK_DATA_HOME:-"$HOME/.var/app/$flatpak_id/data"}
+bbcat=${BBCAT:-}
+mode=${1:-auto}
+
+usage() {
+    echo "usage: $0 [auto|system|flatpak|all]" >&2
+    exit 2
+}
+
+case "$mode" in
+    auto|system|flatpak|all) ;;
+    *) usage ;;
+esac
+
+if [ -z "$bbcat" ]; then
+    bbcat=$(command -v bbcat || true)
+fi
+if [ -z "$bbcat" ] || [ ! -x "$bbcat" ]; then
+    echo "bbcat-sushi: bbcat executable not found; set BBCAT=/path/to/bbcat" >&2
+    exit 1
+fi
+
+install_mime() {
+    install -Dm644 \
+        "$source_dir/data/bbcat-sushi.xml" \
+        "$host_data_home/mime/packages/bbcat-sushi.xml"
+    if command -v update-mime-database >/dev/null 2>&1; then
+        update-mime-database "$host_data_home/mime"
+    fi
+}
+
+install_system() {
+    install -Dm644 \
+        "$source_dir/viewers/bbcat.js" \
+        "$host_data_home/sushi/viewers/bbcat.js"
+    echo "Installed system Sushi viewer."
+}
+
+install_flatpak() {
+    install -Dm644 \
+        "$source_dir/viewers/bbcat.js" \
+        "$flatpak_data_home/sushi/viewers/bbcat.js"
+    install -Dm755 \
+        "$bbcat" \
+        "$flatpak_data_home/bbcat-sushi/bin/bbcat"
+    echo "Installed Flatpak Sushi viewer and private bbcat executable."
+}
+
+system_available=false
+if command -v sushi >/dev/null 2>&1; then
+    system_available=true
+fi
+
+flatpak_available=false
+if command -v flatpak >/dev/null 2>&1 &&
+    flatpak info "$flatpak_id" >/dev/null 2>&1; then
+    flatpak_available=true
+fi
+
+case "$mode" in
+    auto)
+        if [ "$system_available" = false ] &&
+            [ "$flatpak_available" = false ]; then
+            echo "bbcat-sushi: neither system nor Flatpak Sushi is installed" >&2
+            exit 1
+        fi
+        install_mime
+        if [ "$system_available" = true ]; then
+            install_system
+        fi
+        if [ "$flatpak_available" = true ]; then
+            install_flatpak
+        fi
+        ;;
+    system)
+        install_mime
+        install_system
+        ;;
+    flatpak)
+        install_mime
+        install_flatpak
+        ;;
+    all)
+        install_mime
+        install_system
+        install_flatpak
+        ;;
+esac

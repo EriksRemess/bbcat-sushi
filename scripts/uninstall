@@ -1,0 +1,43 @@
+#!/bin/sh
+set -eu
+
+flatpak_id=org.gnome.NautilusPreviewer
+host_data_home=${HOST_DATA_HOME:-${XDG_DATA_HOME:-"$HOME/.local/share"}}
+flatpak_data_home=${FLATPAK_DATA_HOME:-"$HOME/.var/app/$flatpak_id/data"}
+mode=${1:-all}
+remove_mime=false
+
+usage() {
+    echo "usage: $0 [system|flatpak|all]" >&2
+    exit 2
+}
+
+case "$mode" in
+    system)
+        rm -f "$host_data_home/sushi/viewers/bbcat.js"
+        if [ ! -f "$flatpak_data_home/sushi/viewers/bbcat.js" ]; then
+            remove_mime=true
+        fi
+        ;;
+    flatpak)
+        rm -f "$flatpak_data_home/sushi/viewers/bbcat.js"
+        rm -f "$flatpak_data_home/bbcat-sushi/bin/bbcat"
+        if [ ! -f "$host_data_home/sushi/viewers/bbcat.js" ]; then
+            remove_mime=true
+        fi
+        ;;
+    all)
+        rm -f "$host_data_home/sushi/viewers/bbcat.js"
+        rm -f "$flatpak_data_home/sushi/viewers/bbcat.js"
+        rm -f "$flatpak_data_home/bbcat-sushi/bin/bbcat"
+        remove_mime=true
+        ;;
+    *) usage ;;
+esac
+
+if [ "$remove_mime" = true ]; then
+    rm -f "$host_data_home/mime/packages/bbcat-sushi.xml"
+    if command -v update-mime-database >/dev/null 2>&1; then
+        update-mime-database "$host_data_home/mime"
+    fi
+fi
