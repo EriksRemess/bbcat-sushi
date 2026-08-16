@@ -7,7 +7,9 @@ const ByteArray = imports.byteArray;
 const System = imports.system;
 
 if (ARGV.length < 2 || ARGV.length > 3) {
-    printerr('usage: smoke.js SOURCE_DIR INPUT|--animation [static|animation]');
+    printerr(
+        'usage: smoke.js SOURCE_DIR INPUT|--animation|--tundra [static|animation]'
+    );
     System.exit(2);
 }
 
@@ -40,6 +42,17 @@ if (input === '--animation') {
         ByteArray.fromString(
             '\x1b[2J\x1b[H\x1b[1;1HA\x1b[1;1HB\x1b[2J'
         )
+    );
+    input = path;
+    temporaryInput = path;
+}
+
+if (input === '--tundra') {
+    const [fd, path] = GLib.file_open_tmp('bbcat-sushi-XXXXXX.tnd');
+    GLib.close(fd);
+    GLib.file_set_contents(
+        path,
+        ByteArray.fromString('\x18TUNDRA24A')
     );
     input = path;
     temporaryInput = path;

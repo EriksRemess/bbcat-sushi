@@ -5,8 +5,9 @@ window opened with <kbd>Space</kbd> in Files.
 
 The viewer runs [`bbcat`](https://bbcat.dev/) for the selected file, reads its
 image output, and displays the result in Sushi. It handles ANSI/ASC/DIZ and NFO
-text art, DarkDraw DDW, ArtWorx ADF, RIPscrip, and XBin files. Animated artwork
-is detected by bbcat and played from its generated GIF at bbcat's frame timing.
+text art, DarkDraw DDW, ArtWorx ADF, RIPscrip, TundraDraw TND, and XBin files.
+Animated artwork is detected by bbcat and played from its generated GIF at
+bbcat's frame timing.
 
 ## Requirements
 

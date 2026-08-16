@@ -18,6 +18,10 @@
     <comment>RIPscrip artwork</comment>
     <glob pattern="*.rip"/>
   </mime-type>
+  <mime-type type="application/x-tundradraw">
+    <comment>TundraDraw artwork</comment>
+    <glob pattern="*.tnd"/>
+  </mime-type>
   <mime-type type="application/x-xbin">
     <comment>XBin artwork</comment>
     <glob pattern="*.xb"/>

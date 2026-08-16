@@ -325,6 +325,7 @@ var mimeTypes = [
     'application/x-artworx',
     'application/x-darkdraw',
     'application/x-ripscrip',
+    'application/x-tundradraw',
     'application/x-xbin',
     'text/x-nfo',
 ];
